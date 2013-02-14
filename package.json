@@ -1,0 +1,11 @@
+{
+  "name": "Groupon_API_Example",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+	"shred": "*",
+	"seq": "*"
+  },
+  "author": "Shaheen Ghiassy",
+  "license": "BSD"
+}
