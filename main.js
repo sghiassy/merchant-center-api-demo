@@ -1,7 +1,6 @@
 // ====== Demo Setup Information ====== //
 
 var yourClientId = "";
-var yourRedirectURI = "";
 var yourUserName = "";
 var yourPassword = "";
 var yourMerchantPermaLink = "";
@@ -28,13 +27,12 @@ Seq() //Seq helps with sequential flow control in NodeJS
 	.seq(function() {
 		var seqCallback = this; //Caching 'this' context for callback in shred.post object... IE, this is a very NodeJS thing, which you don't need to worry about
 		var req = shred.post({
-			url: "https://api.groupon.com/v2/oauth/authorize?ajax=true&client_id=" + yourClientId,
+			url: "https://api.groupon.com/v2/oauth/access_token?client_id=" + yourClientId,
 			headers: {
 				Accept: "application/json"
 			},
 			content: {
 				username: yourUserName,
-				redirect_uri: yourRedirectURI,
 				response_type: "token",
 				password: yourPassword
 			},
@@ -44,18 +42,19 @@ Seq() //Seq helps with sequential flow control in NodeJS
 					
 					//On a 200 HTTP Response, we need to check to see if the necessary data is present on the response
 					//If auth.accessToken exists, save it and proceed forward. Else, display error to the console
-					if(response.content.data.auth && response.content.data.auth.accessToken) {
-						OAuthToken = response.content.data.auth.accessToken; //Save accessToken
+					if(response.content.data.accessToken) {
+						OAuthToken = response.content.data.accessToken; //Save accessToken
+						console.log(response.content.data);
 
 						seqCallback(false); //Signal that we want to go to the next Seq function
 					} else {
-						var binaryResponse = new Buffer(response.content.data); //Errors are streamed in a binary buffer stream, so we need to decipher it before displaying it
-						var errorMessage = binaryResponse.toString();
+						console.log('/access_token call succeeded, but did not contain an accessToken');
+						var errorMessage = response.content.data;
 						console.log(errorMessage);
 					}
 				},
 				response: function(response) { //All HTTP responeses other than 200 responses come here
-					console.log("Oh no, something went wrong!");
+					console.log("/access_token call failed");
 					console.log(response.content.body);
 				}
 			}
@@ -74,8 +73,9 @@ Seq() //Seq helps with sequential flow control in NodeJS
 					console.log(response.content.data);
 				},
 				response: function(response) {
-					console.log("Oh no, something went wrong!");
-					console.log(response.content.body);
+					console.log("/merchants redemption call failed");
+					var errorMessage = response.content.data;
+					console.log(errorMessage);
 				}
 			}
 		});
